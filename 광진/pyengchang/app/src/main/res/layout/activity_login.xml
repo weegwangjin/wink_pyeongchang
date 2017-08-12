@@ -103,11 +103,10 @@
                 android:text="Sign In"
                 android:textStyle="bold" />
 
-            <Button
+            <com.kakao.usermgmt.LoginButton
                 android:id="@+id/kakao_sign_in_button"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="카카오톡으로 로그인" />
+                android:layout_height="wrap_content"/>
 
             <Button
                 android:id="@+id/facebook_sign_in_button"
