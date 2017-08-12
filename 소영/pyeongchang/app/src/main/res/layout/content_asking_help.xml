@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.lenovo.pyeongchang.Asking_help"
+    tools:showIn="@layout/activity_asking_help">
+
+    <ImageView
+        android:id="@+id/input_Image"
+        android:layout_width="121dp"
+        android:layout_height="151dp"
+        app:srcCompat="@mipmap/ic_launcher"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="42dp" />
+
+    <EditText
+        android:id="@+id/input_Name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="43dp" />
+
+    <EditText
+        android:id="@+id/input_Pphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="phone"
+        android:text="Parent Phone Number"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="95dp" />
+
+    <EditText
+        android:id="@+id/input_Age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:text="Age"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="149dp" />
+
+    <EditText
+        android:id="@+id/input_Time"
+        android:layout_width="344dp"
+        android:layout_height="38dp"
+        android:ems="10"
+        android:inputType="time"
+        android:text="Time"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="205dp" />
+
+    <EditText
+        android:id="@+id/input_Note"
+        android:layout_width="344dp"
+        android:layout_height="39dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:text="Notes"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="257dp" />
+
+    <EditText
+        android:id="@+id/input_Note2"
+        android:layout_width="345dp"
+        android:layout_height="47dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:text="Notes"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="306dp" />
+
+    <Button
+        android:id="@+id/Help_Btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Asking help"
+        tools:layout_editor_absoluteX="136dp"
+        tools:layout_editor_absoluteY="381dp" />
+
+</android.support.constraint.ConstraintLayout>
