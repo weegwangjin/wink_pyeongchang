@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="156dp"
+            android:layout_height="152dp">
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="156dp"
+                android:layout_height="152dp"
+                app:srcCompat="@drawable/child" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/child_name"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text="name" />
+                <TextView
+                    android:id="@+id/child_name_"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text=""
+                    android:textSize="20sp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/child_age"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text="age" />
+                <TextView
+                    android:id="@+id/child_age_"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text=""
+                    android:textSize="20sp"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/missing_time"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text="missing time" />
+                <TextView
+                    android:id="@+id/missing_time_"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:text=""
+                    android:textSize="20sp"/>
+
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/parent_phonenumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="parent_phone_number"
+            tools:layout_editor_absoluteX="100dp"
+            tools:layout_editor_absoluteY="265dp" />
+
+        <TextView
+            android:id="@+id/parent_phonenumber_"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            tools:layout_editor_absoluteX="100dp"
+            tools:layout_editor_absoluteY="360dp" />
+
+
+
+    </LinearLayout>
+
+
+
+
+
+
+</LinearLayout>
