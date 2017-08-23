@@ -51,7 +51,7 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG_LATITUDE = "latitude";
     private static final String TAG_LONGITUDE = "longitude";
 
-    String parent_ID;
+    String parentID;
     ListAdapter adapter;
     ListView mlistView;
     private TextView mTextViewResult;
@@ -72,8 +72,10 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
 
-        parent_ID = intent.getStringExtra("ID");
+        parentID = intent.getStringExtra("ID");
 
+
+        Log.v("parentIDCHECK",parentID);
         Button myChildInfo = (Button) findViewById(R.id.myChildInfo);
         myChildInfo.setOnClickListener(mClickListener);
         mArrayList = new ArrayList<>();
@@ -105,6 +107,7 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
     Button.OnClickListener mClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             Intent intent = new Intent(map_activity.this, MyChildActivity.class);
+            intent.putExtra("parentID", parentID);
             startActivity(intent);
         }
     };
@@ -249,7 +252,7 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
                 handler.post(new Runnable() {
                     public void run() {
                         try {
-                            new GetData().execute("http://13.124.182.10/test.php");
+                            new GetData().execute("http://13.124.182.10/missingChild.php");
 
                         } catch (Exception e) {
                             // TODO Auto-generated catch block

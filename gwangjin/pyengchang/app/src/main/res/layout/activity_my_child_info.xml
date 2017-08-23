@@ -60,11 +60,13 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/help"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="요청"
-        android:textSize="100px"/>
+        android:textSize="100px"
+        android:onClick=""/>
     <!--android:onClick="onClickAskHelp"/>-->
 
 </LinearLayout>

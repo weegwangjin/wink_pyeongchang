@@ -65,15 +65,8 @@
         <activity android:name=".child_info" />
         <activity android:name=".KakaoSignupActivity" />
         <activity android:name=".map_activity" />
-        <activity android:name=".help_activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".help_activity"/>
         <activity android:name=".MyChildActivity" />
-        <activity android:name=".MychildInfoActivity" />
         <activity android:name=".MyChildInfoActivity" />
         <activity android:name=".AddChildActivity" />
         <activity android:name=".GetBeaconActivity"></activity>

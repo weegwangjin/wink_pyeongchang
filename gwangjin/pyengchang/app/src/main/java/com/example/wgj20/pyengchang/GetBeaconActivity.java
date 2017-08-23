@@ -32,6 +32,8 @@ public class GetBeaconActivity extends AppCompatActivity implements BeaconConsum
 
     private List<Beacon> beaconList = new ArrayList<>();
 
+    String parentID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +42,9 @@ public class GetBeaconActivity extends AppCompatActivity implements BeaconConsum
         textView = (TextView) findViewById(R.id.textview);
         editTextUUID = (EditText) findViewById(R.id.editUUID);
 
+        parentID = getIntent().getStringExtra("parentID");
+
+        Log.v("getbeaconCHECK",parentID);
         beaconManager = BeaconManager.getInstanceForApplication(this);
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
@@ -62,7 +67,7 @@ public class GetBeaconActivity extends AppCompatActivity implements BeaconConsum
         Intent intent = new Intent(getApplicationContext(), AddChildActivity.class);
 
         intent.putExtra("UUID", editTextUUID.getText().toString());
-
+        intent.putExtra("parentID", parentID);
         startActivity(intent);
     }
 
