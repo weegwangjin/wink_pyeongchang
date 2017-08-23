@@ -21,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -49,7 +50,7 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG_AGE ="age";
     private static final String TAG_phonenumber="phonenumber";
     private static final String TAG_LATITUDE = "latitude";
-    private static final String TAG_LONGITUDE = "longitude";
+    private static final String TAG_LONGITUDE = "longitude"
 
     String parentID;
     ListAdapter adapter;
@@ -58,11 +59,12 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<HashMap<String, String>> mArrayList;
     String mJsonString;
 
+
     @Override
     public void onMapReady(GoogleMap map) {
-        googleMap = map;
         googleMap.addMarker(new MarkerOptions().position(SEOUL).title("Seoul"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 17.0f));
+        AddMarker();
     }
 
     @Override
@@ -262,6 +264,18 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
         timer.schedule(doAsynchronousTask, 0, 1000); //execute in every 50000 ms
+    }
+
+    public void AddMarker(){
+        for (int i = 0; i < mArrayList.size() ; i+=2 ) {
+            Float lat = mArrayList.get(rLatLng).get(i);
+            Float lng = mArrayList.get(rLatLng).get(i+1);
+            String title = mArrayList.get(position).get("name");
+            LatLng A = new LatLng(lat, lng);
+            String T = title;
+            googleMap.addMarker(new MarkerOptions().position(A).title(T));
+
+        }
     }
 
 }
