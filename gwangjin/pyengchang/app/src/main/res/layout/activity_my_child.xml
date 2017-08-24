@@ -8,13 +8,10 @@
     android:orientation="vertical"
     tools:context="com.example.wgj20.pyengchang.MyChildActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="250dp"
             android:orientation="vertical">
 
             <ListView
@@ -23,17 +20,24 @@
                 android:layout_height="match_parent">
             </ListView>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="추가"
-                android:onClick="onClick"/>
+
 
         </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
-    </ScrollView>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="150dp"
+            android:text="추가"
+            android:onClick="onClick"/>
 
+
+
+    </LinearLayout>
 
 
 </LinearLayout>

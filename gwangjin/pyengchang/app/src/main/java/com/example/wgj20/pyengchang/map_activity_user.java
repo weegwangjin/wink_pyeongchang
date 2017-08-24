@@ -42,7 +42,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     private GoogleMap googleMap;
 
     private static String TAG = "map_activity_TAG";
-    private static final String TAG_JSON="child";
+    private static final String TAG_JSON="missingChild";
     private static final String TAG_UUID = "UUID";
     private static final String TAG_NAME = "name";
     private static final String TAG_AGE ="age";
@@ -50,7 +50,6 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     private static final String TAG_LATITUDE = "latitude";
     private static final String TAG_LONGITUDE = "longitude";
 
-    String parentID;
     ListAdapter adapter;
     ListView mlistView;
     private TextView mTextViewResult;
@@ -67,16 +66,8 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_activity);
+        setContentView(R.layout.activity_map_user);
 
-        Intent intent = getIntent();
-
-        parentID = intent.getStringExtra("ID");
-
-
-        Log.v("parentIDCHECK",parentID);
-        Button myChildInfo = (Button) findViewById(R.id.myChildInfo);
-        myChildInfo.setOnClickListener(mClickListener);
         mArrayList = new ArrayList<>();
         mlistView = (ListView) findViewById(R.id.list);
         Log.d("map_activity","Init GoogleMap");
@@ -91,7 +82,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                  Intent intent = new Intent(map_activity_user.this,child_info.class);
+                Intent intent = new Intent(map_activity_user.this,child_info.class);
 
                 intent.putExtra("name", mArrayList.get(position).get("name"));
                 intent.putExtra("age",mArrayList.get(position).get("age"));
@@ -102,14 +93,6 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
         });
 
     }
-
-    Button.OnClickListener mClickListener = new View.OnClickListener() {
-        public void onClick(View v) {
-            Intent intent = new Intent(map_activity_user.this, MyChildActivity.class);
-            intent.putExtra("parentID", parentID);
-            startActivity(intent);
-        }
-    };
 
     private class GetData extends AsyncTask<String, Void, String> {
         ProgressDialog progressDialog;

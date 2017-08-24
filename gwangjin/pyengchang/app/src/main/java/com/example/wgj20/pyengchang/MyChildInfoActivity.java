@@ -1,7 +1,14 @@
 package com.example.wgj20.pyengchang;
 
+import android.*;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +25,11 @@ import java.net.URL;
 
 public class MyChildInfoActivity extends AppCompatActivity {
 
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
+
     TextView textViewName;
     TextView textViewAge;
     TextView textViewPhoneNumber;
@@ -28,11 +40,27 @@ public class MyChildInfoActivity extends AppCompatActivity {
     String UUID;
     String isMissing;
     Button helping;
+    String latitude;
+    String longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_child_info);
+
+        settingGPS();
+
+        // 사용자의 현재 위치 //
+        Location userLocation = getMyLocation();
+
+        if( userLocation != null ) {
+            // TODO 위치를 처음 얻어왔을 때 하고 싶은 것
+            latitude = String.valueOf(userLocation.getLatitude());
+            longitude = String.valueOf(userLocation.getLongitude());
+        }else {
+            latitude = "0";
+            longitude = "0";
+        }
 
         name = getIntent().getExtras().getString("name");
         age = getIntent().getExtras().getString("age");
@@ -62,12 +90,16 @@ public class MyChildInfoActivity extends AppCompatActivity {
 
     Button.OnClickListener mClickListener = new View.OnClickListener() {
         public void onClick(View v) {
+
             InsertData task = new InsertData();
-            task.execute(name,age,phonenumber,UUID);
+            task.execute(name,age,phonenumber,UUID,latitude,longitude,"100");
             UpdateData task1 = new UpdateData();
-            task1.execute(name,age,phonenumber,UUID);
+            task1.execute(UUID);
+
         }
     };
+
+
 
     class InsertData extends AsyncTask<String, Void, String> {
         ProgressDialog progressDialog;
@@ -97,9 +129,12 @@ public class MyChildInfoActivity extends AppCompatActivity {
             String age = (String)params[1];
             String phoneNumber = (String)params[2];
             String UUID = (String)params[3];
+            String rLatitude = (String)params[4];
+            String rLongitude = (String)params[5];
+            String rDistance = "100";
 
             String serverURL = "http://13.124.182.10/missingChildInsert.php";
-            String postParameters = "parentPhoneNumber=" + phoneNumber + "&childUUID=" + UUID + "&childName=" + name + "&childAge=" + age;
+            String postParameters = "parentPhoneNumber=" + phoneNumber + "&childUUID=" + UUID + "&childName=" + name + "&childAge=" + age + "&rLatitude=" + rLatitude + "&rLongitude=" + rLongitude + "&rDistance=" + rDistance;
 
 
             try {
@@ -178,7 +213,7 @@ public class MyChildInfoActivity extends AppCompatActivity {
 
             progressDialog.dismiss();
             //mTextViewResult.setText(result);
-            Log.d("onPostExeTAG", "POST response  - " + result);
+            Log.d("UpdatenPostExeTAG", "POST response  - " + result);
         }
 
 
@@ -186,7 +221,7 @@ public class MyChildInfoActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
 
             String UUID = (String)params[0];
-
+            Log.v("UpdateCHECK",UUID);
             String serverURL = "http://13.124.182.10/childInfoUpdate.php";
             String postParameters = "childUUID=" + UUID;
 
@@ -249,4 +284,67 @@ public class MyChildInfoActivity extends AppCompatActivity {
 
         }
     }
+
+    private Location getMyLocation() {
+        Location currentLocation = null;
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 사용자 권한 요청
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},0);
+        }
+        else {
+
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+            // 수동으로 위치 구하기
+            String locationProvider = LocationManager.GPS_PROVIDER;
+            currentLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (currentLocation != null) {
+                double lng = currentLocation.getLongitude();
+                double lat = currentLocation.getLatitude();
+                Log.d("Main", "longtitude=" + lng + ", latitude=" + lat);
+            }else{
+                Log.d("받기","실패");
+            }
+
+            if(currentLocation == null) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (currentLocation != null) {
+                    double lng = currentLocation.getLongitude();
+                    double lat = currentLocation.getLatitude();
+                    Log.d("Main", "longtitude=" + lng + ", latitude=" + lat);
+                }else{
+                    Log.d("2차받기","실패");
+                }
+            }
+        }
+        return currentLocation;
+    }
+
+    private void settingGPS() {
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                // TODO 위도, 경도로 하고 싶은 것
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+    }
+
 }

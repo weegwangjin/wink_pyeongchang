@@ -15,18 +15,19 @@
 
         <ImageView
             android:id="@+id/input_Image"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
             android:src="@drawable/mia"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:layout_marginLeft="80dp"
             android:gravity="center">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
                 android:id="@+id/textName"
@@ -34,7 +35,7 @@
                 android:textSize="50px"/>
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
                 android:id="@+id/textAge"
@@ -42,14 +43,14 @@
                 android:textSize="50px"/>
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
                 android:id="@+id/textPhoneNumber"
                 android:gravity="center"
                 android:textSize="50px"/>
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
                 android:id="@+id/textUUID"
@@ -63,9 +64,10 @@
         android:id="@+id/help"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:layout_gravity="center"
         android:text="요청"
-        android:textSize="100px"
+        android:textSize="60px"
         android:onClick=""/>
     <!--android:onClick="onClickAskHelp"/>-->
 

@@ -1,5 +1,7 @@
 package com.example.wgj20.pyengchang;
 
+import android.*;
+import android.Manifest;
 import
 android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -10,8 +12,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -72,6 +79,9 @@ public class LoginActivity extends AppCompatActivity  {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
+
+
+
 
 
     // UI references.
@@ -169,10 +179,9 @@ public class LoginActivity extends AppCompatActivity  {
         Log.d("",getKeyHash(this));
         super.onCreate(savedInstanceState);
 
-
-
         setContentView(R.layout.activity_login);
-        // Set up the login form.
+
+
 
         mProgressView = findViewById(R.id.login_progress);
 
@@ -186,7 +195,7 @@ public class LoginActivity extends AppCompatActivity  {
 
     Button.OnClickListener mClickListener = new View.OnClickListener() {
         public void onClick(View v) {
-            Intent intent = new Intent(LoginActivity.this, map_activity.class);
+            Intent intent = new Intent(LoginActivity.this, map_activity_user.class);
             startActivity(intent);
         }
     };
@@ -254,6 +263,7 @@ public class LoginActivity extends AppCompatActivity  {
         }
         return false;
     }
+
 
 
 

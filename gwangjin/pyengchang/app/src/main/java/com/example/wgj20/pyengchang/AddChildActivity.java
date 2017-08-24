@@ -2,7 +2,9 @@ package com.example.wgj20.pyengchang;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,13 +28,17 @@ public class AddChildActivity extends AppCompatActivity {
     EditText editTextPhoneNumber;
     TextView textViewUUID;
     String parentID;
+    LocationManager locationManager;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_child);
 
         parentID = getIntent().getExtras().getString("parentID");
-
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         Log.v("addchildCHECK",parentID);
         editTextName = (EditText) findViewById(R.id.editName);
         editTextAge = (EditText) findViewById(R.id.editAge);
@@ -41,7 +47,7 @@ public class AddChildActivity extends AppCompatActivity {
 
         if(getIntent().hasExtra("UUID")) {
 
-            textViewUUID.setText("UUID: " + getIntent().getExtras().getString("UUID"));
+            textViewUUID.setText(getIntent().getExtras().getString("UUID"));
         }
     }
 
@@ -61,6 +67,10 @@ public class AddChildActivity extends AppCompatActivity {
 
         InsertData task = new InsertData();
         task.execute(name,age,phoneNumber,UUID,"0");
+
+//        InsertData1 task1 = new InsertData1();
+//        task.execute(UUID,rLatitude, rLongitude, "100");
+
 
         intent.putExtra("parentID", parentID);
         startActivity(intent);
@@ -159,4 +169,97 @@ public class AddChildActivity extends AppCompatActivity {
 
         }
     }
+
+    class InsertData1 extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = ProgressDialog.show(AddChildActivity.this,
+                    "Please Wait", null, true, true);
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            progressDialog.dismiss();
+            //mTextViewResult.setText(result);
+            Log.d("onPostExeTAG", "POST response  - " + result);
+        }
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            String childUUID = (String)params[0];
+            String rLatitude = (String)params[1];
+            String rLongitude = (String)params[2];
+            String rDistance = (String)params[3];
+
+            String serverURL = "http://13.124.182.10/childLocationInsert.php";
+            String postParameters = "childUUID=" + childUUID + "&rLatitude=" + rLatitude + "&rLongitude=" + rLongitude + "&rDistance=" + rDistance;
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                //httpURLConnection.setRequestProperty("content-type", "application/json");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+                Log.d("POSTTAG", "POST response code - " + responseStatusCode);
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+
+                bufferedReader.close();
+
+
+                return sb.toString();
+
+
+            } catch (Exception e) {
+
+                Log.d("ERRORTAG", "InsertData: Error ", e);
+
+                return new String("Error: " + e.getMessage());
+            }
+
+        }
+    }
+
 }
