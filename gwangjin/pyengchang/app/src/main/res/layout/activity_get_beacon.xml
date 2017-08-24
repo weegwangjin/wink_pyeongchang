@@ -10,7 +10,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Input UUID"
+        android:hint="기기번호 입력"
         android:id="@+id/editUUID"/>
 
     <Button
@@ -18,19 +18,19 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClickUUID"
-        android:text="UUID 입력"/>
+        android:text="확인"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:onClick="onClick"
-        android:text="칮기"/>
+        android:text="기기검색"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text=""
         android:id="@+id/textview"/>
 
 </LinearLayout>

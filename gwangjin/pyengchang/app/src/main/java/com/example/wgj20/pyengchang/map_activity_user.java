@@ -143,7 +143,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_activity);
+        setContentView(R.layout.activity_map_user);
 
 
         mArrayList = new ArrayList<>();
@@ -192,7 +192,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
                         beaconList.add(beacon);
                     }
 
-                    Log.i(TAG, "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away.");
+                    //Log.i(TAG, "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away.");
                 }
             }
         });
@@ -390,7 +390,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 1000); //execute in every 50000 ms
+        timer.schedule(doAsynchronousTask, 0, 10000); //execute in every 50000 ms
     }
 
     class UpdateData extends AsyncTask<String, Void, String> {

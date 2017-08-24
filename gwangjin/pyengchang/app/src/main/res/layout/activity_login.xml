@@ -10,26 +10,13 @@
     tools:context="com.example.wgj20.pyengchang.LoginActivity"
     android:weightSum="1">
 
-    <!-- Login progress -->
 
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
-    <ScrollView
-        android:id="@+id/login_form"
-        android:layout_width="match_parent"
-        android:layout_height="478dp"
-        android:layout_weight="0.66">
 
         <LinearLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="300dp"
             android:orientation="vertical">
 
 
@@ -44,16 +31,17 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="31dp" />
+                android:layout_height="30dp" />
 
             <Button
                 android:id="@+id/volunteer_people_sign_in_button"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
+
                 android:text="자원봉사자/일반유저" />
 
 
         </LinearLayout>
-    </ScrollView>
+
 
 </LinearLayout>

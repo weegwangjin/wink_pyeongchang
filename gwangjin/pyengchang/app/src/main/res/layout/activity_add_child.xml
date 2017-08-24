@@ -34,7 +34,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="UUID"
+        android:text="기기검색"
         android:onClick="onClickSetUUID"/>
 
     <Button

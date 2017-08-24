@@ -22,40 +22,37 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginLeft="80dp"
-            android:gravity="center">
+            android:layout_marginLeft="30dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="null"
                 android:id="@+id/textName"
-                android:gravity="center"
-                android:textSize="50px"/>
-
-            <TextView
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
+                android:textSize="50px" />
+
+            <TextView
                 android:id="@+id/textAge"
-                android:gravity="center"
-                android:textSize="50px"/>
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="null"
+                android:textSize="50px" />
 
             <TextView
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="null"
                 android:id="@+id/textPhoneNumber"
-                android:gravity="center"
-                android:textSize="50px"/>
-            <TextView
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="null"
+                android:textSize="50px" />
+
+            <TextView
                 android:id="@+id/textUUID"
-                android:gravity="center"
-                android:textSize="50px"/>
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="null"
+                android:textSize="50px" />
 
         </LinearLayout>
     </LinearLayout>
