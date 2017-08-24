@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,9 +27,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.altbeacon.beacon.Beacon;
+import org.altbeacon.beacon.BeaconConsumer;
+import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.BeaconParser;
+import org.altbeacon.beacon.RangeNotifier;
+import org.altbeacon.beacon.Region;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,14 +45,17 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class map_activity_user extends AppCompatActivity implements OnMapReadyCallback {
+public class map_activity_user extends AppCompatActivity implements OnMapReadyCallback, BeaconConsumer {
 
     static final LatLng SEOUL = new LatLng(37.58,127.02);
     private GoogleMap googleMap;
@@ -67,7 +79,8 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     private TextView mTextViewResult;
     ArrayList<HashMap<String, String>> mArrayList;
     ArrayList<HashMap<String, String>> mArrayList_Location;
-
+    private List<Beacon> beaconList = new ArrayList<>();
+    private BeaconManager beaconManager;
     String mJsonString;
 
     @Override
@@ -99,19 +112,29 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
 
         Float lat;
         Float lng;
-
+        Float distance;
         for (int i = 0; i < mArrayList_Location.size() ; i++ ) {
             try{
                 lat = Float.valueOf(mArrayList_Location.get(i).get("rLatitude"));
                 lng = Float.valueOf(mArrayList_Location.get(i).get("rLongitude"));
+                distance = Float.valueOf(mArrayList_Location.get(i).get("rDistance"));
             }catch (Exception e){
                 lat = Float.valueOf(0);
                 lng = Float.valueOf(0);
+                distance = Float.valueOf(0);
             }
 
 
             LatLng A = new LatLng(lat,lng);
             googleMap.addMarker(new MarkerOptions().position(A).title(mArrayList.get(i).get("name")));
+
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(A)
+                    .radius(distance); // In meters
+
+            // Get back the mutable Circle
+            Circle circle = googleMap.addCircle(circleOptions);
+
 
         }
     }
@@ -120,7 +143,8 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_user);
+        setContentView(R.layout.activity_map_activity);
+
 
         mArrayList = new ArrayList<>();
         mArrayList_Location = new ArrayList<>();
@@ -132,6 +156,11 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
 
 
         callAsynchronousTask();
+        beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.getBeaconParsers().add(new BeaconParser().
+                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
+        beaconManager.bind(this);
+
 
         mlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -147,6 +176,32 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
+    }
+
+    @Override
+    public void onBeaconServiceConnect() {
+        beaconManager.addRangeNotifier(new RangeNotifier() {
+            @Override
+            public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+
+                if (beacons.size() > 0) {
+
+                    beaconList.clear();
+
+                    for (Beacon beacon : beacons) {
+                        beaconList.add(beacon);
+                    }
+
+                    Log.i(TAG, "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away.");
+                }
+            }
+        });
+
+        try {
+
+            beaconManager.startRangingBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
+
+        } catch (RemoteException e) {    }
     }
 
     private class GetData extends AsyncTask<String, Void, String> {
@@ -255,7 +310,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
                 String name = item.getString(TAG_NAME);
                 String phonenumber = item.getString(TAG_phonenumber);
                 String age = item.getString(TAG_AGE);
-
+                String UUID = item.getString("UUID");
                 String rLatitude = item.getString("rLatitude");
                 String rLongitude = item.getString("rLongitude");
                 String rDistance = item.getString("rDistance");
@@ -270,12 +325,14 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
                 hashMap1.put("rLatitude", rLatitude);
                 hashMap1.put("rLongitude", rLongitude);
                 hashMap1.put("rDistance", rDistance);
+                hashMap1.put("UUID",UUID);
 
                 mArrayList_Location.add(hashMap1);
                 mArrayList.add(hashMap);
 
             }
             AddMarker();
+            BeaconUpdate();
             adapter = new SimpleAdapter(
                     map_activity_user.this, mArrayList, R.layout.item_list,
                     new String[]{TAG_NAME,TAG_AGE, TAG_phonenumber},
@@ -290,6 +347,31 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
         }
 
     }
+
+    public void BeaconUpdate()
+    {
+        for( Beacon beacon : beaconList) {
+
+            for (int i = 0; i < mArrayList_Location.size(); i++) {
+
+                if (mArrayList_Location.get(i).get("UUID").equals(beacon.getId1().toString())) {
+                    settingGPS();
+                    Log.v("beaconINFO", String.valueOf(beacon.getId1()));
+                    Log.v("beaconINFO", mArrayList_Location.get(i).get("UUID"));
+                    // 사용자의 현재 위치 //
+                    Location userLocation = getMyLocation();
+                    String rLatitude = String.valueOf(getMyLocation().getLatitude());
+                    String rLongitude = String.valueOf(getMyLocation().getLongitude());
+                    String rDistance = String.valueOf(beacon.getDistance());
+                    Log.v("rDistanceCHECKING",rDistance);
+                    UpdateData task = new UpdateData();
+                    task.execute(mArrayList_Location.get(i).get("UUID"), rLatitude, rLongitude, rDistance);
+                }
+            }
+        }
+
+    }
+
     public void callAsynchronousTask() {
         final Handler handler = new Handler();
         Timer timer = new Timer();
@@ -309,6 +391,98 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
             }
         };
         timer.schedule(doAsynchronousTask, 0, 1000); //execute in every 50000 ms
+    }
+
+    class UpdateData extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = ProgressDialog.show(map_activity_user.this,
+                    "Please Wait", null, true, true);
+        }
+
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            progressDialog.dismiss();
+            //mTextViewResult.setText(result);
+            Log.d("onPostExeTAG", "POST response  - " + result);
+        }
+
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String childUUID = (String) params[0];
+            String rLatitude = (String)params[1];
+            String rLongitude = (String)params[2];
+            String rDistance = (String)params[3];
+            String serverURL = "http://13.124.182.10/childInfoUpdate_Location.php";
+            String postParameters = "childUUID=" + childUUID + "&rLatitude=" + rLatitude + "&rLongitude=" + rLongitude + "&rDistance=" + rDistance;
+
+
+            try {
+
+                URL url = new URL(serverURL);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+
+                httpURLConnection.setReadTimeout(5000);
+                httpURLConnection.setConnectTimeout(5000);
+                httpURLConnection.setRequestMethod("POST");
+                //httpURLConnection.setRequestProperty("content-type", "application/json");
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.connect();
+
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(postParameters.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+
+                int responseStatusCode = httpURLConnection.getResponseCode();
+                Log.d("POSTTAG", "POST response code - " + responseStatusCode);
+
+                InputStream inputStream;
+                if(responseStatusCode == HttpURLConnection.HTTP_OK) {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+                else{
+                    inputStream = httpURLConnection.getErrorStream();
+                }
+
+
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+
+                while((line = bufferedReader.readLine()) != null){
+                    sb.append(line);
+                }
+
+
+                bufferedReader.close();
+
+
+                return sb.toString();
+
+
+            } catch (Exception e) {
+
+                Log.d("UpdateERRORTAG", "UpdateData: Error ", e);
+
+                return new String("Error: " + e.getMessage());
+            }
+
+        }
     }
 
 
