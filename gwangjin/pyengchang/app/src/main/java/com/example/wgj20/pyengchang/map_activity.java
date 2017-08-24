@@ -29,12 +29,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.json.JSONArray;
@@ -115,19 +118,29 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
 
         Float lat;
         Float lng;
-
+        Float distance;
                for (int i = 0; i < mArrayList_Location.size() ; i++ ) {
                    try{
                        lat = Float.valueOf(mArrayList_Location.get(i).get("rLatitude"));
                        lng = Float.valueOf(mArrayList_Location.get(i).get("rLongitude"));
+                       distance = Float.valueOf(mArrayList_Location.get(i).get("rDistance"));
                    }catch (Exception e){
                        lat = Float.valueOf(0);
                        lng = Float.valueOf(0);
+                       distance = Float.valueOf(0);
                    }
 
 
                    LatLng A = new LatLng(lat,lng);
                    googleMap.addMarker(new MarkerOptions().position(A).title(mArrayList.get(i).get("name")));
+
+                   CircleOptions circleOptions = new CircleOptions()
+                           .center(A)
+                           .radius(distance); // In meters
+
+                   // Get back the mutable Circle
+                   Circle circle = googleMap.addCircle(circleOptions);
+
 
                }
     }
@@ -155,6 +168,11 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         callAsynchronousTask();
+        beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.getBeaconParsers().add(new BeaconParser().
+                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
+        beaconManager.bind(this);
+
 
         mlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -191,7 +209,6 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
                     beaconList.clear();
 
                     for (Beacon beacon : beacons) {
-
                         beaconList.add(beacon);
                     }
 
@@ -207,21 +224,6 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (RemoteException e) {    }
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-
-            for (Beacon beacon : beaconList) {
-                for(int i=0;i<mArrayList.size();i++){
-                    if(mArrayList.get(i).get("UUID") == beacon.getId1().toString()){
-
-                    }
-                }
-            }
-
-            handler.sendEmptyMessageDelayed(0, 1000);
-        }
-    };
     private class GetData extends AsyncTask<String, Void, String> {
         ProgressDialog progressDialog;
         String errorString = null;
@@ -328,7 +330,7 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
                 String name = item.getString(TAG_NAME);
                 String phonenumber = item.getString(TAG_phonenumber);
                 String age = item.getString(TAG_AGE);
-
+                String UUID = item.getString("UUID");
                 String rLatitude = item.getString("rLatitude");
                 String rLongitude = item.getString("rLongitude");
                 String rDistance = item.getString("rDistance");
@@ -343,12 +345,14 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
                 hashMap1.put("rLatitude", rLatitude);
                 hashMap1.put("rLongitude", rLongitude);
                 hashMap1.put("rDistance", rDistance);
+                hashMap1.put("UUID",UUID);
 
                 mArrayList_Location.add(hashMap1);
                 mArrayList.add(hashMap);
-                AddMarker();
-            }
 
+            }
+            AddMarker();
+            BeaconUpdate();
             adapter = new SimpleAdapter(
                     map_activity.this, mArrayList, R.layout.item_list,
                     new String[]{TAG_NAME,TAG_AGE, TAG_phonenumber},
@@ -360,6 +364,30 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (JSONException e) {
 
             Log.d(TAG, "showResult : ", e);
+        }
+
+    }
+
+    public void BeaconUpdate()
+    {
+        for( Beacon beacon : beaconList) {
+
+            for (int i = 0; i < mArrayList_Location.size(); i++) {
+
+                if (mArrayList_Location.get(i).get("UUID").equals(beacon.getId1().toString())) {
+                    settingGPS();
+                    Log.v("beaconINFO", String.valueOf(beacon.getId1()));
+                    Log.v("beaconINFO", mArrayList_Location.get(i).get("UUID"));
+                    // 사용자의 현재 위치 //
+                    Location userLocation = getMyLocation();
+                    String rLatitude = String.valueOf(getMyLocation().getLatitude());
+                    String rLongitude = String.valueOf(getMyLocation().getLongitude());
+                    String rDistance = String.valueOf(beacon.getDistance());
+                    Log.v("rDistanceCHECKING",rDistance);
+                    UpdateData task = new UpdateData();
+                    task.execute(mArrayList_Location.get(i).get("UUID"), rLatitude, rLongitude, rDistance);
+                }
+            }
         }
 
     }
@@ -411,11 +439,12 @@ public class map_activity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         protected String doInBackground(String... params) {
 
-            String rLatitude = (String)params[0];
-            String rLongitude = (String)params[1];
-
-            String serverURL = "http://13.124.182.10/childLocationUpdate.php";
-            String postParameters = "rLatitude=" + rLatitude + "&rLongitude=" + rLongitude;
+            String childUUID = (String) params[0];
+            String rLatitude = (String)params[1];
+            String rLongitude = (String)params[2];
+            String rDistance = (String)params[3];
+            String serverURL = "http://13.124.182.10/childInfoUpdate_Location.php";
+            String postParameters = "childUUID=" + childUUID + "&rLatitude=" + rLatitude + "&rLongitude=" + rLongitude + "&rDistance=" + rDistance;
 
 
             try {

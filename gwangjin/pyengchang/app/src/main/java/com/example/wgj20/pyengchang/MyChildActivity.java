@@ -62,7 +62,7 @@ public class MyChildActivity extends AppCompatActivity {
                 intent.putExtra("age",mArrayList.get(position).get("childAge"));
                 intent.putExtra("phonenumber", mArrayList.get(position).get("parentPhoneNumber"));
                 intent.putExtra("UUID", mArrayList.get(position).get("UUID"));
-
+                intent.putExtra("isMissing",mArrayList.get(position).get("isMissing"));
                 Log.v("sendCHECK",mArrayList.get(position).get("UUID"));
 
 
@@ -188,6 +188,7 @@ public class MyChildActivity extends AppCompatActivity {
                 String phonenumber = item.getString(TAG_phonenumber);
                 String age = item.getString(TAG_AGE);
                 String UUID = item.getString("childUUID");
+                String isMissing = item.getString("isMissing");
 
                 HashMap<String,String> hashMap = new HashMap<>();
 
@@ -196,6 +197,7 @@ public class MyChildActivity extends AppCompatActivity {
                 hashMap.put(TAG_AGE, age);
                 hashMap.put(TAG_phonenumber, phonenumber);
                 hashMap.put("UUID",UUID);
+                hashMap.put("isMissing",isMissing);
                 mArrayList.add(hashMap);
             }
 

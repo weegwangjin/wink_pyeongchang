@@ -1,10 +1,16 @@
 package com.example.wgj20.pyengchang;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -40,6 +47,11 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
 
     static final LatLng SEOUL = new LatLng(37.58,127.02);
     private GoogleMap googleMap;
+    LatLng ME;
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
 
     private static String TAG = "map_activity_TAG";
     private static final String TAG_JSON="missingChild";
@@ -54,6 +66,8 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
     ListView mlistView;
     private TextView mTextViewResult;
     ArrayList<HashMap<String, String>> mArrayList;
+    ArrayList<HashMap<String, String>> mArrayList_Location;
+
     String mJsonString;
 
     @Override
@@ -63,12 +77,53 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 17.0f));
     }
 
+    public void AddMarker(){
+
+        googleMap.clear();
+        settingGPS();
+
+        // 사용자의 현재 위치 //
+        Location userLocation = getMyLocation();
+
+
+        if( userLocation != null ) {
+            ME = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+            googleMap.addMarker(new MarkerOptions().position(ME).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ME, 17.0f));
+        }else {
+            ME = new LatLng(0,0);
+            googleMap.addMarker(new MarkerOptions().position(ME).title("ME").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ME, 17.0f));
+        }
+
+
+        Float lat;
+        Float lng;
+
+        for (int i = 0; i < mArrayList_Location.size() ; i++ ) {
+            try{
+                lat = Float.valueOf(mArrayList_Location.get(i).get("rLatitude"));
+                lng = Float.valueOf(mArrayList_Location.get(i).get("rLongitude"));
+            }catch (Exception e){
+                lat = Float.valueOf(0);
+                lng = Float.valueOf(0);
+            }
+
+
+            LatLng A = new LatLng(lat,lng);
+            googleMap.addMarker(new MarkerOptions().position(A).title(mArrayList.get(i).get("name")));
+
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_user);
 
         mArrayList = new ArrayList<>();
+        mArrayList_Location = new ArrayList<>();
         mlistView = (ListView) findViewById(R.id.list);
         Log.d("map_activity","Init GoogleMap");
 
@@ -191,6 +246,7 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
 
             JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
             mArrayList = new ArrayList<>();
+            mArrayList_Location = new ArrayList<>();
             for(int i=0;i<jsonArray.length();i++){
 
                 JSONObject item = jsonArray.getJSONObject(i);
@@ -200,16 +256,26 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
                 String phonenumber = item.getString(TAG_phonenumber);
                 String age = item.getString(TAG_AGE);
 
-                HashMap<String,String> hashMap = new HashMap<>();
+                String rLatitude = item.getString("rLatitude");
+                String rLongitude = item.getString("rLongitude");
+                String rDistance = item.getString("rDistance");
 
+                HashMap<String,String> hashMap = new HashMap<>();
+                HashMap<String,String> hashMap1 = new HashMap<>();
 
                 hashMap.put(TAG_NAME, name);
                 hashMap.put(TAG_AGE, age);
                 hashMap.put(TAG_phonenumber, phonenumber);
 
-                mArrayList.add(hashMap);
-            }
+                hashMap1.put("rLatitude", rLatitude);
+                hashMap1.put("rLongitude", rLongitude);
+                hashMap1.put("rDistance", rDistance);
 
+                mArrayList_Location.add(hashMap1);
+                mArrayList.add(hashMap);
+
+            }
+            AddMarker();
             adapter = new SimpleAdapter(
                     map_activity_user.this, mArrayList, R.layout.item_list,
                     new String[]{TAG_NAME,TAG_AGE, TAG_phonenumber},
@@ -224,7 +290,6 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
         }
 
     }
-
     public void callAsynchronousTask() {
         final Handler handler = new Handler();
         Timer timer = new Timer();
@@ -245,5 +310,69 @@ public class map_activity_user extends AppCompatActivity implements OnMapReadyCa
         };
         timer.schedule(doAsynchronousTask, 0, 1000); //execute in every 50000 ms
     }
+
+
+    private Location getMyLocation() {
+        Location currentLocation = null;
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 사용자 권한 요청
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},0);
+        }
+        else {
+
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+            // 수동으로 위치 구하기
+            String locationProvider = LocationManager.GPS_PROVIDER;
+            currentLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (currentLocation != null) {
+                double lng = currentLocation.getLongitude();
+                double lat = currentLocation.getLatitude();
+                Log.d("Main", "longtitude=" + lng + ", latitude=" + lat);
+            }else{
+                Log.d("받기","실패");
+            }
+
+            if(currentLocation == null) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (currentLocation != null) {
+                    double lng = currentLocation.getLongitude();
+                    double lat = currentLocation.getLatitude();
+                    Log.d("Main", "longtitude=" + lng + ", latitude=" + lat);
+                }else{
+                    Log.d("2차받기","실패");
+                }
+            }
+        }
+        return currentLocation;
+    }
+
+    private void settingGPS() {
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                // TODO 위도, 경도로 하고 싶은 것
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+    }
+
 
 }
